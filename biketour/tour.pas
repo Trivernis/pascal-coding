@@ -90,7 +90,7 @@ begin
 end;
 
 begin
-  TextColor(8);
+  TextColor(DarkGray);
   Writeln('Tourplanner');
   Writeln('Written by J.Riegel.');
   TextColor(White);
@@ -125,8 +125,13 @@ begin
 
         for j := 0 to 2 do
         begin
-          WriteLn('Password: ');
+          Write('Password: ');
+          cursoroff;
+          TextColor(Black);
+          TextBackground(Black);
           ReadLn(readinput);
+          TextColor(White);
+          cursoron;
 
           if MD5Print(MD5String(readinput)) = users[i].pw then
           begin
@@ -135,7 +140,11 @@ begin
             Break;
           end
           else
-            WriteLn('Wrong password! ', 2 - j, ' trys left.');
+            begin
+              TextColor(Red);
+              WriteLn('Wrong password! ', 2 - j, ' trys left.');
+              TextColor(White);
+            end;
         end;
         { @section userfunctions }
         if correct = true then
@@ -144,6 +153,10 @@ begin
           users[i].l := true;
       end;
     if usersuccess = false then
-      WriteLn('User not found');
+      begin
+        TextColor(Red);
+        WriteLn('User not found');
+        TextColor(White);
+      end;
   end;
 end.
