@@ -1,4 +1,4 @@
-program login;
+program tour;
 
 uses
   md5, crt;
@@ -39,7 +39,7 @@ hotels: array [0..4] of HOTEL = (
 var
   readinput: string;
   i, j, distance_total, hnum1, hnum2: integer;
-  correct, exit: boolean;
+  correct, exit_loop: boolean;
   usersuccess: boolean = false;
   velocity, time: real;
 
@@ -50,7 +50,7 @@ procedure hotelmain;
 var
   i : integer;
 begin
-  while exit = false do
+  while exit_loop = false do
   begin
     distance_total := 0;
     for i := 0 to 4 do
@@ -83,9 +83,9 @@ begin
     ReadLn(readinput);
 
     if readinput = 'y' then
-      exit := true
+      exit_loop := true
     else
-      exit := false;
+      exit_loop := false;
   end;
 end;
 
