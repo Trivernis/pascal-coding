@@ -1,4 +1,4 @@
-program tour;
+program login;
 
 uses
   md5, crt;
@@ -38,21 +38,67 @@ hotels: array [0..4] of HOTEL = (
 
 var
   readinput: string;
-  i, j, distance_total, hnum1, hnum2: integer;
-  correct, exit_loop: boolean;
+  j, hnum1, hnum2: integer;
+  correct: boolean;
   usersuccess: boolean = false;
-  velocity, time: real;
+  time: real;
 
-{ Calculates the total distance between hotels based on the hotel number input.
-  (Only numbers accepted!). After printing the total distance a velocity can be
-  input to calculate the estimated time. }
-procedure hotelmain;
+function distance_sum(hnum1, hnum2 :integer) : integer;
+{ Calculate the total distance sum. }
+var
+  distance_total : integer = 0;
+  i : integer;
+begin
+  if (hnum1 > hnum2) then
+    for i := (hnum1-2) downto (hnum2-1) do
+      distance_total := distance_total + hotels[i].conn.distance
+  else
+    for i := (hnum1-1) to (hnum2-2) do
+      distance_total := distance_total + hotels[i].conn.distance;
+  distance_sum := distance_total;
+end;
+
+procedure calc_time(disttot : integer);
+{ Calculate the time needed for the way and print it. }
+var
+  velocity : integer;
+begin
+      Write('Velocity (km/h): ');
+      ReadLn(velocity);
+      time := (disttot / velocity);
+      WriteLn('Estimated Time: ', time: 10: 2, ' hours');
+end;
+
+procedure printway(hnum1, hnum2 : integer);
+{ Print the whole way to the console. }
 var
   i : integer;
 begin
-  while exit_loop = false do
-  begin
-    distance_total := 0;
+  Writeln('Tour:');
+  if hnum1 > hnum2 then
+    for i := hnum1 downto hnum2 do
+    begin
+      if (i <> hnum1) then
+        Write(' -> ');
+      Write(hotels[i-1].name)
+    end
+  else
+    for i := hnum1 to hnum2 do
+    begin
+      if (i <> hnum1) then
+        Write(' -> ');
+      Write(hotels[i-1].name)
+    end; 
+  Writeln;
+end;
+
+procedure calcway;
+{ Calculate the sum of all distances and call functions
+  that use this value. }
+var
+  i, distance_total : integer;
+begin
+  distance_total := 0;
     for i := 0 to 4 do
     begin
       distance_total += hotels[i].conn.distance
@@ -63,44 +109,45 @@ begin
     Writeln;
     Write('Second Hotel Number: ');
     ReadLn(hnum2);
+    printway(hnum1, hnum2);
 
     If ((hnum1 <= 5) and (hnum2 <= 5)) then
     begin
-      distance_total := 0;
-      if (hnum1 > hnum2) then
-        for i := (hnum1-2) downto (hnum2-1) do
-          distance_total := distance_total + hotels[i].conn.distance
-      else
-        for i := (hnum1-1) to (hnum2-2) do
-          distance_total := distance_total + hotels[i].conn.distance;
-      Writeln('Distance between hotels is ', distance_total);
-      Write('Velocity (km/h): ');
-      ReadLn(velocity);
-      time := (distance_total / velocity);
-      WriteLn('Estimated Time: ', time: 10: 2, ' hours');
+      distance_total := distance_sum(hnum1, hnum2);
+      Writeln('Distance between hotels is ', distance_total, ' km');
+      calc_time(distance_total);
     end;
+end;
+
+{ Calculates the total distance between hotels based on the hotel number input.
+  (Only numbers accepted!). After printing the total distance a velocity can be
+  input to calculate the estimated time. }
+procedure hotelmain;
+var
+  i : integer;
+  exit : boolean = false;
+begin
+  while exit = false do
+  begin
+    calcway;
     Write('Exit? (y/n)');
     ReadLn(readinput);
 
     if readinput = 'y' then
-      exit_loop := true
+      exit := true
     else
-      exit_loop := false;
+      exit := false;
   end;
 end;
 
+procedure login;
+var
+  i : integer;
 begin
-  TextColor(DarkGray);
-  Writeln('Tourplanner');
-  Writeln('Written by J.Riegel.');
-  TextColor(White);
-
-  { endless loop/main loop of the program. Exit with CTRL-C }
-  while true do
-  begin
-    Write('User: ');
+  Write('User: ');
     ReadLn(readinput);
     usersuccess := false;
+    correct := false;
 
     { Iterate over all 5 user entries to find the one
       that fits the input. set usersuccess to true if found
@@ -125,13 +172,8 @@ begin
 
         for j := 0 to 2 do
         begin
-          Write('Password: ');
-          cursoroff;
-          TextColor(Black);
-          TextBackground(Black);
+          WriteLn('Password: ');
           ReadLn(readinput);
-          TextColor(White);
-          cursoron;
 
           if MD5Print(MD5String(readinput)) = users[i].pw then
           begin
@@ -140,11 +182,7 @@ begin
             Break;
           end
           else
-            begin
-              TextColor(Red);
-              WriteLn('Wrong password! ', 2 - j, ' trys left.');
-              TextColor(White);
-            end;
+            WriteLn('Wrong password! ', 2 - j, ' trys left.');
         end;
         { @section userfunctions }
         if correct = true then
@@ -153,10 +191,16 @@ begin
           users[i].l := true;
       end;
     if usersuccess = false then
-      begin
-        TextColor(Red);
-        WriteLn('User not found');
-        TextColor(White);
-      end;
-  end;
+      WriteLn('User not found');
+end;
+
+begin
+  TextColor(8);
+  Writeln('Tourplanner');
+  Writeln('Written by J.Riegel.');
+  TextColor(White);
+
+  { endless loop/main loop of the program. Exit with CTRL-C }
+  while true do
+    login; { Login starts all the other functions }
 end.
