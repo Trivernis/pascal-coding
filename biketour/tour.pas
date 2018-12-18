@@ -1,16 +1,17 @@
 program login;
 
 uses
-  md5, crt;
+  md5, crt,
+  utils in '../lib/utils.pas';
 
 type
   CONNECTION = record
-    hotel : string;
+    hotel : string[10];
     distance : integer;
   end;
 
   HOTEL = record
-    name : string;
+    name : string[10];
     conn : CONNECTION;
   end;
 
@@ -21,20 +22,13 @@ type
   end;
 
 const
-users: array [0..4] of USER = (
-  (un: 'user1'; pw: '16d7a4fca7442dda3ad93c9a726597e4'; l: false),
-  (un: 'user2'; pw: 'ccd2fc33d2d423d7209035dbfff82b29'; l: false),
-  (un: 'user3'; pw: '57c2877c1d84c4b49f3289657deca65c'; l: false),
-  (un: 'user4'; pw: '4101bef8794fed986e95dfb54850c68b'; l: false),
-  (un: 'root';  pw: '63a9f0ea7bb98050796b649e85481845'; l: false)
-  );
-hotels: array [0..4] of HOTEL = (
-  (name: 'Hotel 1'; conn: (hotel: 'Hotel 2'; distance: 11)),
-  (name: 'Hotel 2'; conn: (hotel: 'Hotel 3'; distance: 5)),
-  (name: 'Hotel 3'; conn: (hotel: 'Hotel 4'; distance: 11)),
-  (name: 'Hotel 4'; conn: (hotel: 'Hotel 5'; distance: 5)),
-  (name: 'Hotel 5'; conn: (hotel: ''; distance: 0))
-);
+  users: array [0..4] of USER = (
+    (un: 'user1'; pw: '16d7a4fca7442dda3ad93c9a726597e4'; l: false),
+    (un: 'user2'; pw: 'ccd2fc33d2d423d7209035dbfff82b29'; l: false),
+    (un: 'user3'; pw: '57c2877c1d84c4b49f3289657deca65c'; l: false),
+    (un: 'user4'; pw: '4101bef8794fed986e95dfb54850c68b'; l: false),
+    (un: 'root';  pw: '63a9f0ea7bb98050796b649e85481845'; l: false)
+    );
 
 var
   readinput: string;
@@ -42,87 +36,93 @@ var
   correct: boolean;
   usersuccess: boolean = false;
   time: real;
+  hotels_f: File of HOTEL;
 
-function distance_sum(hnum1, hnum2 :integer) : integer;
-{ Calculate the total distance sum. }
+
+function get_hotel_by_name(hname: String) : HOTEL;
+{ Read the hotels from the  file and find the one with the right name }
 var
-  distance_total : integer = 0;
+  htemp : HOTEL;
+begin
+  Reset(hotels_f);
+  while not EOF(hotels_f) do
+  begin
+    Read(hotels_f, htemp);
+    if htemp.name = hname then
+    begin
+      get_hotel_by_name := htemp;
+      Break;
+    end;
+  end;
+end;
+
+
+function get_total_length : integer;
+{ Calculates the total lenght between two hotels }
+var
+  htemp: HOTEL;
+begin
+  Reset(hotels_f);
+  get_total_length := 0;
+  while not EOF(hotels_f) do
+  begin
+    Read(hotels_f, htemp);
+    get_total_length := get_total_length + htemp.conn.distance;
+  end;
+end;
+
+
+function get_path_length (hotel1, hotel2 : String) : Integer;
+var
+  htemp: HOTEL;
+  next_name: String;
   i : integer;
 begin
-  if (hnum1 > hnum2) then
-    for i := (hnum1-2) downto (hnum2-1) do
-      distance_total := distance_total + hotels[i].conn.distance
-  else
-    for i := (hnum1-1) to (hnum2-2) do
-      distance_total := distance_total + hotels[i].conn.distance;
-  distance_sum := distance_total;
+  htemp := get_hotel_by_name(hotel1);
+  next_name := htemp.conn.hotel;
+  get_path_length := 0;
+  get_path_length := get_path_length + htemp.conn.distance;
+  i := 0;
+  Writeln(next_name, ' ',hotel2);
+  while not (next_name = hotel2) do
+  begin
+    i += 1;
+    htemp := get_hotel_by_name(next_name);
+    next_name := htemp.conn.hotel;
+    get_path_length := get_path_length + htemp.conn.distance;
+    if i > 1000 then
+    begin
+      get_path_length := -1;
+      Break;
+    end;
+  end;
 end;
 
-procedure calc_time(disttot : integer);
-{ Calculate the time needed for the way and print it. }
-var
-  velocity : integer;
-begin
-      Write('Velocity (km/h): ');
-      ReadLn(velocity);
-      time := (disttot / velocity);
-      WriteLn('Estimated Time: ', time: 10: 2, ' hours');
-end;
-
-procedure printway(hnum1, hnum2 : integer);
-{ Print the whole way to the console. }
-var
-  i : integer;
-begin
-  Writeln('Tour:');
-  if hnum1 > hnum2 then
-    for i := hnum1 downto hnum2 do
-    begin
-      if (i <> hnum1) then
-        Write(' -> ');
-      Write(hotels[i-1].name)
-    end
-  else
-    for i := hnum1 to hnum2 do
-    begin
-      if (i <> hnum1) then
-        Write(' -> ');
-      Write(hotels[i-1].name)
-    end; 
-  Writeln;
-end;
 
 procedure calcway;
 { Calculate the sum of all distances and call functions
   that use this value. }
 var
   i, distance_total : integer;
+  h1, h2: HOTEL;
+  rin : String;
 begin
-  distance_total := 0;
-    for i := 0 to 4 do
-    begin
-      distance_total += hotels[i].conn.distance
-    end;
-    Writeln('Total tour length: ', distance_total, ' km');
-    Write('First Hotel Number: ');
-    ReadLn(hnum1);
-    Writeln;
-    Write('Second Hotel Number: ');
-    ReadLn(hnum2);
-    printway(hnum1, hnum2);
-
-    If ((hnum1 <= 5) and (hnum2 <= 5)) then
-    begin
-      distance_total := distance_sum(hnum1, hnum2);
-      Writeln('Distance between hotels is ', distance_total, ' km');
-      calc_time(distance_total);
-    end;
+  distance_total := get_total_length;
+  Writeln('Total tour length: ', distance_total, ' km');
+  Write('First Hotel Name: ');
+  ReadLn(rin);
+  h1 := get_hotel_by_name(rin);
+  Writeln;
+  Write('Second Hotel Number: ');
+  ReadLn(rin);
+  h2 := get_hotel_by_name(rin);
+  Writeln(get_path_length(h1.name, h2.name));
 end;
 
+procedure hotelmain;
 { Calculates the total distance between hotels based on the hotel number input.
   (Only numbers accepted!). After printing the total distance a velocity can be
   input to calculate the estimated time. }
-procedure hotelmain;
 var
   i : integer;
   exit : boolean = false;
@@ -199,6 +199,7 @@ begin
   Writeln('Tourplanner');
   Writeln('Written by J.Riegel.');
   TextColor(White);
+  Assign(hotels_f, 'hotels.bin');
 
   { endless loop/main loop of the program. Exit with CTRL-C }
   while true do
