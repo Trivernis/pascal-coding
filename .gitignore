@@ -2,3 +2,4 @@
 *.exe
 .idea
 *.o
+*.ppu
