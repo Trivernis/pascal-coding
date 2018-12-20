@@ -6,12 +6,12 @@ uses
   utils in './lib/utils.pas';
 
 const
-  fname = './persons/Name';
+fname = './persons/Name';
 
-procedure gen_entry(fnum: Integer);
+procedure gen_entry(fnum: integer);
 var
   temp_person: person;
-  curr_fname : String;
+  curr_fname: string;
 begin
   curr_fname := fname + int_to_str(fnum) + '.prs';
   Write('  Name: ');
@@ -25,14 +25,12 @@ begin
 end;
 
 var
-  i : Integer;
+  i: integer;
 
 begin
   Randomize;
   WriteLn;
   for i := 1 to 4 do
-  begin
     gen_entry(i);
-  end;
   WriteLn('[+] All names saved.');
 end.

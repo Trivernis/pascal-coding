@@ -3,33 +3,35 @@
 unit utils;
 
 interface
+
 uses
   crt,
   Graph;
+
 type
   person = record
-    pname : String[10];
-    psurname : String[10];
-    number: Integer;
+    pname: string[10];
+    psurname: string[10];
+    number: integer;
   end;
 
-function int_to_str(i: Integer): String;
-procedure write_file(fname: String; data: person);
-function read_file(fname: String): person;
-procedure drawrectnums(nums: Array of Integer; size: Integer);
+function int_to_str(i: integer): string;
+procedure write_file(fname: string; data: person);
+function read_file(fname: string): person;
+procedure drawrectnums(nums: array of integer; size: integer);
 procedure init_graphics;
-procedure graphictext(x, y, size: Integer; text: String);
+procedure graphictext(x, y, size: integer; text: string);
 
 implementation
 
-function int_to_str(i: Integer): String;
+function int_to_str(i: integer): string;
 begin
   Str(i, int_to_str);
 end;
 
-procedure write_file(fname: String; data: person);
+procedure write_file(fname: string; data: person);
 var
-  outfile: File of person;
+  outfile: file of person;
 
 begin
   Assign(outfile, fname);
@@ -38,9 +40,9 @@ begin
   Close(outfile);
 end;
 
-function read_file(fname: String): person;
+function read_file(fname: string): person;
 var
-  infile: File of person;
+  infile: file of person;
 begin
   Assign(infile, fname);
   Reset(infile);
@@ -48,9 +50,9 @@ begin
   Close(infile);
 end;
 
-function format_num(num: Integer) : String;
+function format_num(num: integer): string;
 var
-  tempstr: String;
+  tempstr: string;
 begin
   tempstr := int_to_str(num);
   if (tempstr = '0') then
@@ -61,45 +63,45 @@ end;
 procedure init_graphics;
 var
   gdriver,
-  gmode : Integer;
+  gmode: integer;
 begin
   DetectGraph(gdriver, gmode);
   InitGraph(gdriver, gmode, '');
 end;
 
-procedure graphictext(x, y, size : Integer; text: String);
+procedure graphictext(x, y, size: integer; text: string);
 begin
-  SetTextStyle(0, 0, round(size/40));
+  SetTextStyle(0, 0, round(size / 40));
   OutTextXY(x, y, text);
 end;
 
-procedure drawrectnums(nums: Array of Integer; size: Integer);
+procedure drawrectnums(nums: array of integer; size: integer);
 var
   xsize,
   ysize,
   xstart,
-  ystart: Integer;
+  ystart: integer;
 
 begin
   xsize := GetMaxX;
   ysize := GetMaxY;
-  xstart := Round(xsize/2) - round(size/2);
-  ystart := Round(ysize/2) - round(size/2);
-  SetTextStyle(0, 0, round(size/40));
-  OutTextXY(xstart+size, ystart, format_num(nums[0]));
-  OutTextXY(xstart+size, ystart+size, format_num(nums[1]));
-  OutTextXY(xstart, ystart+size, format_num(nums[2]));
+  xstart := Round(xsize / 2) - round(size / 2);
+  ystart := Round(ysize / 2) - round(size / 2);
+  SetTextStyle(0, 0, round(size / 40));
+  OutTextXY(xstart + size, ystart, format_num(nums[0]));
+  OutTextXY(xstart + size, ystart + size, format_num(nums[1]));
+  OutTextXY(xstart, ystart + size, format_num(nums[2]));
   OutTextXY(xstart, ystart, format_num(nums[3]));
 end;
 
-procedure draw_lines(xstart, ystart, size: Integer);
+procedure draw_lines(xstart, ystart, size: integer);
 begin
-  Line(xstart, ystart, xstart+size, ystart);
-  Line(xstart+size, ystart, xstart+size, ystart+size);
-  Line(xstart+size, ystart+size, xstart, ystart+size);
-  Line(xstart, ystart+size, xstart, ystart);
+  Line(xstart, ystart, xstart + size, ystart);
+  Line(xstart + size, ystart, xstart + size, ystart + size);
+  Line(xstart + size, ystart + size, xstart, ystart + size);
+  Line(xstart, ystart + size, xstart, ystart);
 end;
 
 begin
- { Main Body }
+  { Main Body }
 end.
