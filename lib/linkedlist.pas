@@ -1,5 +1,7 @@
 unit linkedlist;
 
+{ TODO: Change from interface and record to class. }
+
 interface
 type
   link = ^node;
