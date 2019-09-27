@@ -1,3 +1,3 @@
 # Pascal Coding
 
-Repository of pascal code I created in university.
+Repository of pascal code I've created in university.
